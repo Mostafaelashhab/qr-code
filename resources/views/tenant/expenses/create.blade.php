@@ -1,0 +1,12 @@
+<x-layouts.app :title="__('ui.new_expense')">
+    <div class="mx-auto max-w-xl">
+        <form method="POST" action="{{ route('tenant.expenses.store') }}" class="space-y-6">
+            @csrf
+            @include('tenant.expenses._form')
+            <div class="flex items-center justify-end gap-3">
+                <x-button variant="secondary" :href="route('tenant.expenses.index')">{{ __('ui.cancel') }}</x-button>
+                <x-button type="submit">{{ __('ui.create') }}</x-button>
+            </div>
+        </form>
+    </div>
+</x-layouts.app>
