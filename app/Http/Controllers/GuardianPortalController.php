@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AttendanceStatus;
 use App\Models\Attendance;
 use App\Models\Student;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class GuardianPortalController extends Controller
@@ -42,5 +43,24 @@ class GuardianPortalController extends Controller
             'balance' => $student->balance(),
             'payments' => $student->payments()->withoutGlobalScopes()->with('group')->latest('paid_at')->take(10)->get(),
         ]);
+    }
+
+    /**
+     * Let the guardian opt in/out of WhatsApp reminders for this student, from
+     * the same token-authorized portal.
+     */
+    public function toggleReminders(string $token): RedirectResponse
+    {
+        $student = Student::withoutGlobalScopes()
+            ->where('guardian_token', $token)
+            ->firstOrFail();
+
+        $student->forceFill(['reminders_opt_out' => ! $student->reminders_opt_out])->save();
+
+        return redirect()
+            ->route('portal.show', $token)
+            ->with('status', $student->reminders_opt_out
+                ? __('portal.reminders_off_notice')
+                : __('portal.reminders_on_notice'));
     }
 }

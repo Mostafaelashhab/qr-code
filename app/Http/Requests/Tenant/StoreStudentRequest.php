@@ -23,11 +23,15 @@ class StoreStudentRequest extends FormRequest
             'guardian_phone' => ['nullable', 'string', 'max:50'],
             'stage' => ['nullable', 'string', 'max:100'],
             'is_active' => ['boolean'],
+            'reminders_opt_out' => ['boolean'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge(['is_active' => $this->boolean('is_active', true)]);
+        $this->merge([
+            'is_active' => $this->boolean('is_active', true),
+            'reminders_opt_out' => $this->boolean('reminders_opt_out'),
+        ]);
     }
 }

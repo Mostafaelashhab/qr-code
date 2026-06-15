@@ -97,6 +97,27 @@
             </ul>
         </x-card>
 
+        @if (session('status'))
+            <div class="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <x-card :title="__('portal.reminders_title')">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-gray-600">
+                    {{ $student->reminders_opt_out ? __('portal.reminders_currently_off') : __('portal.reminders_currently_on') }}
+                </p>
+                <form method="POST" action="{{ route('portal.reminders', $student->guardian_token) }}">
+                    @csrf
+                    <button type="submit"
+                            class="rounded-lg px-3 py-1.5 text-sm font-medium ring-1 transition {{ $student->reminders_opt_out ? 'text-emerald-700 ring-emerald-300 hover:bg-emerald-50' : 'text-rose-700 ring-rose-300 hover:bg-rose-50' }}">
+                        {{ $student->reminders_opt_out ? __('portal.reminders_resume') : __('portal.reminders_stop') }}
+                    </button>
+                </form>
+            </div>
+        </x-card>
+
         <p class="pb-4 text-center text-xs text-gray-400">© {{ now()->year }} {{ $client->name }}</p>
     </main>
 </body>

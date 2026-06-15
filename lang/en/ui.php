@@ -143,6 +143,9 @@ return [
     'no_permissions' => 'No permissions',
     'no_roles' => 'No roles yet.',
 
+    'reminders_opt_out' => 'Stop reminders',
+    'reminders_opt_out_hint' => 'When checked, this guardian receives no WhatsApp reminders.',
+
     // Domain navigation
     'subjects' => 'Subjects',
     'teachers' => 'Teachers',

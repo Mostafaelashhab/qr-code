@@ -52,7 +52,7 @@ class ClientController extends Controller
     {
         Gate::authorize('view', $client);
 
-        $client->load(['users', 'subscriptions.plan']);
+        $client->load(['users', 'subscriptions.plan', 'whatsappSession']);
 
         return view('admin.clients.show', compact('client'));
     }

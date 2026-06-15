@@ -50,6 +50,9 @@
             $can(\App\Enums\Feature::Messages) && $may(\App\Enums\Permission::Messages)
                 ? ['route' => 'tenant.messages.index', 'label' => __('ui.messages'), 'icon' => 'card', 'active' => 'tenant.messages.*']
                 : null,
+            $user->isClientAdmin() && $can(\App\Enums\Feature::WhatsApp)
+                ? ['route' => 'tenant.whatsapp.show', 'label' => __('whatsapp.nav'), 'icon' => 'card', 'active' => 'tenant.whatsapp.*']
+                : null,
             $user->isClientAdmin()
                 ? ['route' => 'tenant.users.index', 'label' => __('ui.users'), 'icon' => 'users', 'active' => 'tenant.users.*']
                 : null,
@@ -210,5 +213,6 @@
         </main>
     </div>
 </div>
+@stack('scripts')
 </body>
 </html>

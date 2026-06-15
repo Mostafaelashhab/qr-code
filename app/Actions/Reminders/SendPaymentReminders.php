@@ -2,7 +2,8 @@
 
 namespace App\Actions\Reminders;
 
-use App\Contracts\SmsGateway;
+use App\Actions\Reminders\Concerns\QueuesThrottledReminders;
+use App\Contracts\MessageGateway;
 use App\Enums\SmsType;
 use App\Models\Group;
 use App\Models\Payment;
@@ -10,11 +11,14 @@ use App\Models\SmsMessage;
 
 class SendPaymentReminders
 {
-    public function __construct(private SmsGateway $gateway) {}
+    use QueuesThrottledReminders;
+
+    public function __construct(private MessageGateway $gateway) {}
 
     /**
-     * Notify guardians of enrolled students who have not paid for the given month.
-     * Returns the number of reminders sent.
+     * Queue reminders to guardians of enrolled students who have not paid for
+     * the given month. Skips guardians who have opted out. Returns the number
+     * queued.
      */
     public function execute(Group $group, string $month): int
     {
@@ -26,8 +30,12 @@ class SendPaymentReminders
         $debtors = $group->students()
             ->wherePivot('is_active', true)
             ->whereNotNull('guardian_phone')
+            ->where('students.reminders_opt_out', false)
             ->whereNotIn('students.id', $paidStudentIds)
             ->get();
+
+        $group->loadMissing('client');
+        $cursor = 0;
 
         foreach ($debtors as $student) {
             $body = __('messages_log.payment_due_body', [
@@ -37,17 +45,17 @@ class SendPaymentReminders
                 'month' => $month,
             ]);
 
-            $ok = $this->gateway->send($student->guardian_phone, $body);
-
-            SmsMessage::create([
+            $message = SmsMessage::create([
                 'client_id' => $group->client_id,
                 'student_id' => $student->id,
                 'to' => $student->guardian_phone,
                 'type' => SmsType::PaymentDue,
+                'channel' => $this->gateway->channel(),
                 'body' => $body,
-                'status' => $ok ? 'sent' : 'failed',
-                'sent_at' => now(),
+                'status' => 'queued',
             ]);
+
+            $this->dispatchReminder($message, $cursor);
         }
 
         return $debtors->count();

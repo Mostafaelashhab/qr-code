@@ -21,12 +21,14 @@ class Student extends Model
         'name',
         'phone',
         'guardian_phone',
+        'reminders_opt_out',
         'stage',
         'is_active',
     ];
 
     protected $attributes = [
         'is_active' => true,
+        'reminders_opt_out' => false,
     ];
 
     protected static function booted(): void
@@ -59,6 +61,7 @@ class Student extends Model
     {
         return [
             'is_active' => 'boolean',
+            'reminders_opt_out' => 'boolean',
         ];
     }
 

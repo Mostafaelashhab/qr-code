@@ -69,6 +69,28 @@
                     @endforelse
                 </ul>
             </x-card>
+
+            <x-card :title="__('whatsapp.provisioning_title')">
+                <p class="mb-4 text-sm text-gray-600">{{ __('whatsapp.provisioning_hint') }}</p>
+
+                @php $wa = $client->whatsappSession; @endphp
+                <div class="mb-4 flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3 ring-1 ring-gray-200">
+                    <span class="text-sm font-medium text-gray-700">{{ __('whatsapp.connection_status') }}</span>
+                    <x-badge :color="$wa?->isConnected() ? 'emerald' : 'gray'">
+                        {{ ($wa?->status ?? \App\Enums\WhatsAppStatus::Disconnected)->label() }}
+                    </x-badge>
+                </div>
+
+                <form method="POST" action="{{ route('admin.clients.whatsapp.update', $client) }}" class="space-y-4">
+                    @csrf @method('PUT')
+                    <x-form.field name="auth_key" :label="__('whatsapp.auth_key')" :value="$wa?->auth_key" />
+                    <x-form.field name="device_uuid" :label="__('whatsapp.device_uuid')" :value="$wa?->device_uuid" />
+                    <x-form.field name="app_key" :label="__('whatsapp.app_key')" :value="$wa?->app_key" />
+                    <div class="flex justify-end">
+                        <x-button type="submit">{{ __('ui.save') }}</x-button>
+                    </div>
+                </form>
+            </x-card>
         </div>
     </div>
 

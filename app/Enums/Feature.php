@@ -18,6 +18,7 @@ enum Feature: string
     case Messages = 'messages';
     case Activity = 'activity';
     case OnlineTests = 'online_tests';
+    case WhatsApp = 'whatsapp';
 
     public function label(): string
     {
@@ -31,6 +32,7 @@ enum Feature: string
             self::Messages => __('ui.messages'),
             self::Activity => __('ui.activity_log'),
             self::OnlineTests => __('ui.online_tests'),
+            self::WhatsApp => __('whatsapp.nav'),
         };
     }
 

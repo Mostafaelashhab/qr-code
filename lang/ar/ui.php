@@ -143,6 +143,9 @@ return [
     'no_permissions' => 'لا توجد صلاحيات',
     'no_roles' => 'لا توجد أدوار بعد.',
 
+    'reminders_opt_out' => 'إيقاف التذكيرات',
+    'reminders_opt_out_hint' => 'لو مفعّلة، ولي الأمر ده مش هيستقبل تذكيرات واتساب.',
+
     // Domain navigation
     'subjects' => 'المواد',
     'teachers' => 'المدرسون',

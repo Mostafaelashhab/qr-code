@@ -7,5 +7,9 @@
         <div class="sm:col-span-2">
             <x-form.checkbox name="is_active" :label="__('ui.active')" :checked="$student->is_active ?? true" />
         </div>
+        <div class="sm:col-span-2">
+            <x-form.checkbox name="reminders_opt_out" :label="__('ui.reminders_opt_out')" :checked="$student->reminders_opt_out ?? false" />
+            <p class="mt-1 text-xs text-gray-500">{{ __('ui.reminders_opt_out_hint') }}</p>
+        </div>
     </div>
 </x-card>

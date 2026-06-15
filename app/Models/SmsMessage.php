@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MessageChannel;
 use App\Enums\SmsType;
 use App\Models\Concerns\BelongsToClient;
 use Database\Factories\SmsMessageFactory;
@@ -18,6 +19,7 @@ class SmsMessage extends Model
         'student_id',
         'to',
         'type',
+        'channel',
         'body',
         'status',
         'sent_at',
@@ -25,6 +27,7 @@ class SmsMessage extends Model
 
     protected $attributes = [
         'type' => SmsType::General->value,
+        'channel' => MessageChannel::WhatsApp->value,
         'status' => 'sent',
     ];
 
@@ -32,6 +35,7 @@ class SmsMessage extends Model
     {
         return [
             'type' => SmsType::class,
+            'channel' => MessageChannel::class,
             'sent_at' => 'datetime',
         ];
     }

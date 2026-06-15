@@ -24,6 +24,7 @@ Route::view('brand', 'brand')->name('brand');
 
 // Public, token-based parent portal (read-only).
 Route::get('p/{token}', [GuardianPortalController::class, 'show'])->name('portal.show');
+Route::post('p/{token}/reminders', [GuardianPortalController::class, 'toggleReminders'])->name('portal.reminders');
 
 // Public, token-based online test taking.
 Route::get('t/{token}', [TestAttemptController::class, 'show'])->name('test.show');
@@ -72,6 +73,7 @@ Route::middleware('auth')->group(function (): void {
             Route::post('subscription-payments/{payment}/reject', [Admin\SubscriptionPaymentController::class, 'reject'])->name('subscription-payments.reject');
 
             Route::resource('clients', Admin\ClientController::class);
+            Route::put('clients/{client}/whatsapp', [Admin\WhatsAppController::class, 'update'])->name('clients.whatsapp.update');
             Route::resource('plans', Admin\PlanController::class)->except('show');
 
             Route::post('subscriptions/{subscription}/renew', [Admin\SubscriptionController::class, 'renew'])
@@ -193,6 +195,12 @@ Route::middleware('auth')->group(function (): void {
                 Route::middleware('role:client_admin')->group(function (): void {
                     Route::resource('roles', Tenant\RoleController::class)->except('show');
                     Route::resource('users', Tenant\UserController::class)->except('show');
+
+                    // WhatsApp number linking (QR pairing) for sending reminders.
+                    Route::middleware('feature:whatsapp')->group(function (): void {
+                        Route::get('whatsapp', [Tenant\WhatsAppController::class, 'show'])->name('whatsapp.show');
+                        Route::get('whatsapp/qr', [Tenant\WhatsAppController::class, 'qr'])->name('whatsapp.qr');
+                    });
 
                     Route::get('settings', [Tenant\SettingsController::class, 'edit'])->name('settings.edit');
                     Route::put('settings', [Tenant\SettingsController::class, 'update'])->name('settings.update');

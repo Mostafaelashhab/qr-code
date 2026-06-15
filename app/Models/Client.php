@@ -59,6 +59,14 @@ class Client extends Model
     }
 
     /**
+     * @return HasOne<WhatsAppSession, $this>
+     */
+    public function whatsappSession(): HasOne
+    {
+        return $this->hasOne(WhatsAppSession::class);
+    }
+
+    /**
      * The most recent subscription, regardless of status.
      *
      * @return HasOne<Subscription, $this>
