@@ -1,5 +1,10 @@
 <x-layouts.app :title="__('ui.settings')">
     <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.settings')" :subtitle="__('ui.settings_intro')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.settings')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.settings.update') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf @method('PUT')
 

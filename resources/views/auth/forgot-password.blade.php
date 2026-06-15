@@ -2,17 +2,7 @@
     <h2 class="mb-2 text-center text-lg font-semibold">{{ __('ui.forgot_password') }}</h2>
     <p class="mb-6 text-center text-sm text-gray-500">{{ __('ui.forgot_password_hint') }}</p>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="mb-4 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-            {{ $errors->first() }}
-        </div>
-    @endif
+    <x-alert />
 
     <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
         @csrf

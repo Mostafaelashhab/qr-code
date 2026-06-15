@@ -1,6 +1,11 @@
 <x-layouts.app :title="__('whatsapp.title')">
     <div class="mx-auto max-w-2xl space-y-6">
-        <x-card :title="__('whatsapp.title')">
+        <x-page-header :title="__('whatsapp.title')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('whatsapp.nav')],
+        ]" />
+
+        <x-card>
             <p class="mb-5 text-sm text-gray-600">{{ __('whatsapp.intro') }}</p>
 
             <div class="mb-5 flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3 ring-1 ring-gray-200">

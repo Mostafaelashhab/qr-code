@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_teacher')">
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_teacher')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.teachers'), 'url' => route('tenant.teachers.index')],
+            ['label' => __('ui.new_teacher')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.teachers.store') }}" class="space-y-6">
             @csrf
             @include('tenant.teachers._form')

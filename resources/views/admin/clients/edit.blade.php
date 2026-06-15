@@ -1,5 +1,12 @@
 <x-layouts.app :title="__('ui.edit_client')">
     <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.edit_client')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+            ['label' => __('ui.clients'), 'url' => route('admin.clients.index')],
+            ['label' => $client->name, 'url' => route('admin.clients.show', $client)],
+            ['label' => __('ui.edit')],
+        ]" />
+
         <form method="POST" action="{{ route('admin.clients.update', $client) }}" class="space-y-6">
             @csrf
             @method('PUT')

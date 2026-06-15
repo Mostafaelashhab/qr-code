@@ -8,9 +8,13 @@
 
 <x-layouts.app :title="__('ui.edit_subscription')">
     <div class="mx-auto max-w-xl">
-        <div class="mb-4 text-sm text-gray-500">
-            {{ $subscription->client->name }} · {{ $subscription->plan->name }}
-        </div>
+        <x-page-header :title="__('ui.edit_subscription')"
+                       :subtitle="$subscription->client->name.' · '.$subscription->plan->name"
+                       :breadcrumbs="[
+                           ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+                           ['label' => __('ui.subscriptions'), 'url' => route('admin.subscriptions.index')],
+                           ['label' => __('ui.edit')],
+                       ]" />
 
         <form method="POST" action="{{ route('admin.subscriptions.update', $subscription) }}" class="space-y-6">
             @csrf

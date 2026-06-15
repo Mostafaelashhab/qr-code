@@ -18,11 +18,12 @@
 
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($permissions as $permission)
-                    <label class="flex items-center gap-2.5 rounded-lg border border-gray-200 px-3.5 py-2.5 hover:bg-gray-50">
+                    {{-- Whole chip highlights when its checkbox is checked (CSS-only via has-[:checked]). --}}
+                    <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-2.5 transition border-gray-200 hover:bg-gray-50 has-checked:border-indigo-400 has-checked:bg-indigo-50/60 has-checked:ring-1 has-checked:ring-indigo-200">
                         <input type="checkbox" name="permissions[]" value="{{ $permission->value }}"
                                @checked(in_array($permission->value, $granted, true))
                                class="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                        <span class="text-sm text-gray-700">{{ $permission->label() }}</span>
+                        <span class="text-sm font-medium text-gray-700">{{ $permission->label() }}</span>
                     </label>
                 @endforeach
             </div>

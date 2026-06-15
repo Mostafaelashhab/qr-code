@@ -80,6 +80,7 @@ return [
     'payment_rejected' => 'Payment rejected.',
 
     'feature_unavailable' => 'This feature is not included in your current plan.',
+    'feature_unavailable_on_trial' => 'This feature is not available during your free trial. Subscribe to a paid plan to unlock it.',
 
     'test_saved' => 'Test saved successfully.',
     'test_deleted' => 'Test deleted successfully.',

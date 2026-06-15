@@ -1,24 +1,28 @@
 @php $canBill = auth()->user()->client?->hasFeature(\App\Enums\Feature::Payments); @endphp
 
 <x-layouts.app :title="$student->name">
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold">{{ $student->name }}</h2>
-            <x-badge :color="$student->is_active ? 'emerald' : 'gray'">
-                {{ $student->is_active ? __('ui.active') : __('ui.inactive') }}
-            </x-badge>
-            @if ($canBill && $balance > 0)
-                <x-badge color="rose">{{ __('ui.balance') }}: {{ number_format($balance, 2) }}</x-badge>
-            @elseif ($canBill)
-                <x-badge color="emerald">{{ __('ui.paid_up') }}</x-badge>
-            @endif
-        </div>
-        <div class="flex gap-2">
+    <x-page-header :title="$student->name" :subtitle="$student->stage" :breadcrumbs="[
+        ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+        ['label' => __('ui.students'), 'url' => route('tenant.students.index')],
+        ['label' => $student->name],
+    ]">
+        <x-slot:actions>
             <x-button variant="secondary" :href="route('tenant.students.edit', $student)">{{ __('ui.edit') }}</x-button>
             @if ($canBill)
                 <x-button :href="route('tenant.payments.create', ['student_id' => $student->id])">{{ __('ui.new_payment') }}</x-button>
             @endif
-        </div>
+        </x-slot:actions>
+    </x-page-header>
+
+    <div class="mb-6 flex flex-wrap items-center gap-2">
+        <x-badge :color="$student->is_active ? 'emerald' : 'gray'">
+            {{ $student->is_active ? __('ui.active') : __('ui.inactive') }}
+        </x-badge>
+        @if ($canBill && $balance > 0)
+            <x-badge color="rose">{{ __('ui.balance') }}: {{ number_format($balance, 2) }}</x-badge>
+        @elseif ($canBill)
+            <x-badge color="emerald">{{ __('ui.paid_up') }}</x-badge>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

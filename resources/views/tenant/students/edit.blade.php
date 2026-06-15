@@ -1,5 +1,12 @@
 <x-layouts.app :title="__('ui.edit_student')">
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.edit_student')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.students'), 'url' => route('tenant.students.index')],
+            ['label' => $student->name, 'url' => route('tenant.students.show', $student)],
+            ['label' => __('ui.edit')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.students.update', $student) }}" class="space-y-6">
             @csrf @method('PUT')
             @include('tenant.students._form')

@@ -33,7 +33,7 @@
             <label class="block text-sm font-medium text-gray-700">{{ __('ui.features') }}</label>
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 @foreach (Feature::cases() as $feature)
-                    <label class="flex items-start gap-2.5 rounded-lg px-3 py-2.5 ring-1 ring-gray-200">
+                    <label class="flex cursor-pointer items-start gap-2.5 rounded-xl px-3 py-2.5 ring-1 transition ring-gray-200 hover:bg-gray-50 has-checked:bg-indigo-50/60 has-checked:ring-indigo-300">
                         <input type="checkbox" name="features[]" value="{{ $feature->value }}"
                                @checked(in_array($feature->value, $selectedFeatures, true))
                                class="mt-0.5 size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">

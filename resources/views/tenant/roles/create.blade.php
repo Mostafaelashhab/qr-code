@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_role')">
     <div class="mx-auto max-w-3xl">
+        <x-page-header :title="__('ui.new_role')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.roles'), 'url' => route('tenant.roles.index')],
+            ['label' => __('ui.new_role')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.roles.store') }}" class="space-y-6">
             @csrf
             @include('tenant.roles._form', ['role' => $role, 'permissions' => $permissions])

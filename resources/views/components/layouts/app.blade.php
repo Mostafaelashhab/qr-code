@@ -9,67 +9,96 @@
     // (center admins hold all). Plan-feature sections also still require $can().
     $may = fn (\App\Enums\Permission $permission): bool => $user->hasPermission($permission);
 
+    // Navigation is grouped into labelled sections for clearer hierarchy.
+    // Empty sections (all items filtered out by permission/plan) are dropped.
     $nav = $user->isSuperAdmin()
-        ? [
-            ['route' => 'admin.dashboard', 'label' => __('ui.dashboard'), 'icon' => 'grid'],
-            ['route' => 'admin.clients.index', 'label' => __('ui.clients'), 'icon' => 'building', 'active' => 'admin.clients.*'],
-            ['route' => 'admin.plans.index', 'label' => __('ui.plans'), 'icon' => 'tag', 'active' => 'admin.plans.*'],
-            ['route' => 'admin.subscriptions.index', 'label' => __('ui.subscriptions'), 'icon' => 'card', 'active' => 'admin.subscriptions.*'],
-            ['route' => 'admin.subscription-payments.index', 'label' => __('ui.subscription_payments'), 'icon' => 'card', 'active' => 'admin.subscription-payments.*'],
-            ['route' => 'admin.reports', 'label' => __('ui.platform_reports'), 'icon' => 'grid'],
-        ]
-        : array_values(array_filter([
-            ['route' => 'tenant.dashboard', 'label' => __('ui.dashboard'), 'icon' => 'grid'],
-            $may(\App\Enums\Permission::Students)
-                ? ['route' => 'tenant.students.index', 'label' => __('ui.students'), 'icon' => 'users', 'active' => 'tenant.students.*']
-                : null,
-            $may(\App\Enums\Permission::Groups)
-                ? ['route' => 'tenant.groups.index', 'label' => __('ui.groups'), 'icon' => 'grid', 'active' => 'tenant.groups.*']
-                : null,
-            $can(\App\Enums\Feature::Timetable) && $may(\App\Enums\Permission::Timetable)
-                ? ['route' => 'tenant.timetable.index', 'label' => __('ui.timetable'), 'icon' => 'card', 'active' => 'tenant.timetable.*']
-                : null,
-            $may(\App\Enums\Permission::Subjects)
-                ? ['route' => 'tenant.subjects.index', 'label' => __('ui.subjects'), 'icon' => 'tag', 'active' => 'tenant.subjects.*']
-                : null,
-            $may(\App\Enums\Permission::Teachers)
-                ? ['route' => 'tenant.teachers.index', 'label' => __('ui.teachers'), 'icon' => 'building', 'active' => 'tenant.teachers.*']
-                : null,
-            $can(\App\Enums\Feature::Payments) && $may(\App\Enums\Permission::Payments)
-                ? ['route' => 'tenant.payments.index', 'label' => __('ui.payments'), 'icon' => 'card', 'active' => 'tenant.payments.*']
-                : null,
-            $can(\App\Enums\Feature::Expenses) && $may(\App\Enums\Permission::Expenses)
-                ? ['route' => 'tenant.expenses.index', 'label' => __('ui.expenses'), 'icon' => 'tag', 'active' => 'tenant.expenses.*']
-                : null,
-            $can(\App\Enums\Feature::OnlineTests) && $may(\App\Enums\Permission::OnlineTests)
-                ? ['route' => 'tenant.tests.index', 'label' => __('ui.online_tests'), 'icon' => 'tag', 'active' => 'tenant.tests.*']
-                : null,
-            $can(\App\Enums\Feature::Reports) && $may(\App\Enums\Permission::Reports)
-                ? ['route' => 'tenant.reports.index', 'label' => __('ui.reports'), 'icon' => 'grid', 'active' => 'tenant.reports.*']
-                : null,
-            $can(\App\Enums\Feature::Messages) && $may(\App\Enums\Permission::Messages)
-                ? ['route' => 'tenant.messages.index', 'label' => __('ui.messages'), 'icon' => 'card', 'active' => 'tenant.messages.*']
-                : null,
-            $user->isClientAdmin() && $can(\App\Enums\Feature::WhatsApp)
-                ? ['route' => 'tenant.whatsapp.show', 'label' => __('whatsapp.nav'), 'icon' => 'card', 'active' => 'tenant.whatsapp.*']
-                : null,
-            $user->isClientAdmin()
-                ? ['route' => 'tenant.users.index', 'label' => __('ui.users'), 'icon' => 'users', 'active' => 'tenant.users.*']
-                : null,
-            $user->isClientAdmin()
-                ? ['route' => 'tenant.roles.index', 'label' => __('ui.roles'), 'icon' => 'tag', 'active' => 'tenant.roles.*']
-                : null,
-            $user->isClientAdmin() && $can(\App\Enums\Feature::Activity)
-                ? ['route' => 'tenant.activity.index', 'label' => __('ui.activity_log'), 'icon' => 'grid', 'active' => 'tenant.activity.*']
-                : null,
-            $user->isClientAdmin()
-                ? ['route' => 'tenant.settings.edit', 'label' => __('ui.settings'), 'icon' => 'tag', 'active' => 'tenant.settings.*']
-                : null,
-            ['route' => 'tenant.subscription.index', 'label' => __('ui.my_subscription'), 'icon' => 'card', 'active' => 'tenant.subscription.*'],
-            $user->isClientAdmin()
-                ? ['route' => 'tenant.billing.index', 'label' => __('ui.billing'), 'icon' => 'card', 'active' => 'tenant.billing.*']
-                : null,
-        ]));
+        ? array_filter([
+            __('ui.section_overview') => [
+                ['route' => 'admin.dashboard', 'label' => __('ui.dashboard'), 'icon' => 'dashboard'],
+                ['route' => 'admin.reports', 'label' => __('ui.platform_reports'), 'icon' => 'chart'],
+            ],
+            __('ui.section_management') => [
+                ['route' => 'admin.clients.index', 'label' => __('ui.clients'), 'icon' => 'building', 'active' => 'admin.clients.*'],
+                ['route' => 'admin.plans.index', 'label' => __('ui.plans'), 'icon' => 'tag', 'active' => 'admin.plans.*'],
+                ['route' => 'admin.subscriptions.index', 'label' => __('ui.subscriptions'), 'icon' => 'card', 'active' => 'admin.subscriptions.*'],
+                ['route' => 'admin.subscription-payments.index', 'label' => __('ui.subscription_payments'), 'icon' => 'cash', 'active' => 'admin.subscription-payments.*'],
+            ],
+        ], fn (array $items): bool => count($items) > 0)
+        : array_filter([
+            __('ui.section_overview') => [
+                ['route' => 'tenant.dashboard', 'label' => __('ui.dashboard'), 'icon' => 'dashboard'],
+            ],
+            __('ui.section_people') => array_values(array_filter([
+                $may(\App\Enums\Permission::Students)
+                    ? ['route' => 'tenant.students.index', 'label' => __('ui.students'), 'icon' => 'users', 'active' => 'tenant.students.*']
+                    : null,
+                $may(\App\Enums\Permission::Groups)
+                    ? ['route' => 'tenant.groups.index', 'label' => __('ui.groups'), 'icon' => 'group', 'active' => 'tenant.groups.*']
+                    : null,
+                $can(\App\Enums\Feature::Timetable) && $may(\App\Enums\Permission::Timetable)
+                    ? ['route' => 'tenant.timetable.index', 'label' => __('ui.timetable'), 'icon' => 'calendar', 'active' => 'tenant.timetable.*']
+                    : null,
+                $may(\App\Enums\Permission::Subjects)
+                    ? ['route' => 'tenant.subjects.index', 'label' => __('ui.subjects'), 'icon' => 'tag', 'active' => 'tenant.subjects.*']
+                    : null,
+                $may(\App\Enums\Permission::Teachers)
+                    ? ['route' => 'tenant.teachers.index', 'label' => __('ui.teachers'), 'icon' => 'teacher', 'active' => 'tenant.teachers.*']
+                    : null,
+            ])),
+            __('ui.section_finance') => array_values(array_filter([
+                $can(\App\Enums\Feature::Payments) && $may(\App\Enums\Permission::Payments)
+                    ? ['route' => 'tenant.payments.index', 'label' => __('ui.payments'), 'icon' => 'cash', 'active' => 'tenant.payments.*']
+                    : null,
+                $can(\App\Enums\Feature::Expenses) && $may(\App\Enums\Permission::Expenses)
+                    ? ['route' => 'tenant.expenses.index', 'label' => __('ui.expenses'), 'icon' => 'wallet', 'active' => 'tenant.expenses.*']
+                    : null,
+                $can(\App\Enums\Feature::Reports) && $may(\App\Enums\Permission::Reports)
+                    ? ['route' => 'tenant.reports.index', 'label' => __('ui.reports'), 'icon' => 'chart', 'active' => 'tenant.reports.*']
+                    : null,
+            ])),
+            __('ui.section_engagement') => array_values(array_filter([
+                $can(\App\Enums\Feature::OnlineTests) && $may(\App\Enums\Permission::OnlineTests)
+                    ? ['route' => 'tenant.tests.index', 'label' => __('ui.online_tests'), 'icon' => 'clipboard', 'active' => 'tenant.tests.*']
+                    : null,
+                $can(\App\Enums\Feature::Messages) && $may(\App\Enums\Permission::Messages)
+                    ? ['route' => 'tenant.messages.index', 'label' => __('ui.messages'), 'icon' => 'chat', 'active' => 'tenant.messages.*']
+                    : null,
+                $user->isClientAdmin() && $can(\App\Enums\Feature::WhatsApp)
+                    ? ['route' => 'tenant.whatsapp.show', 'label' => __('whatsapp.nav'), 'icon' => 'whatsapp', 'active' => 'tenant.whatsapp.*']
+                    : null,
+            ])),
+            __('ui.section_administration') => array_values(array_filter([
+                $user->isClientAdmin()
+                    ? ['route' => 'tenant.users.index', 'label' => __('ui.users'), 'icon' => 'users', 'active' => 'tenant.users.*']
+                    : null,
+                $user->isClientAdmin()
+                    ? ['route' => 'tenant.roles.index', 'label' => __('ui.roles'), 'icon' => 'shield', 'active' => 'tenant.roles.*']
+                    : null,
+                $user->isClientAdmin() && $can(\App\Enums\Feature::Activity)
+                    ? ['route' => 'tenant.activity.index', 'label' => __('ui.activity_log'), 'icon' => 'activity', 'active' => 'tenant.activity.*']
+                    : null,
+                $user->isClientAdmin()
+                    ? ['route' => 'tenant.settings.edit', 'label' => __('ui.settings'), 'icon' => 'settings', 'active' => 'tenant.settings.*']
+                    : null,
+                ['route' => 'tenant.subscription.index', 'label' => __('ui.my_subscription'), 'icon' => 'card', 'active' => 'tenant.subscription.*'],
+                $user->isClientAdmin()
+                    ? ['route' => 'tenant.billing.index', 'label' => __('ui.billing'), 'icon' => 'cash', 'active' => 'tenant.billing.*']
+                    : null,
+            ])),
+        ], fn (array $items): bool => count($items) > 0);
+
+    // Mobile bottom bar: the first few permitted destinations + a drawer toggle.
+    $bottomNav = array_slice(array_merge(...array_values($nav)), 0, 4);
+    $bottomIcons = [
+        'dashboard' => 'M4 13h6V4H4zM14 21h6v-9h-6zM14 8h6V4h-6zM4 21h6v-4H4z',
+        'users'     => 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
+        'group'     => 'M17 21v-2a4 4 0 00-3-3.87M9 21v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M12 3a4 4 0 100 8 4 4 0 000-8z',
+        'cash'      => 'M2 7h20v10H2zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM5 10h.01M19 14h.01',
+        'building'  => 'M3 21h18M5 21V5a1 1 0 011-1h7a1 1 0 011 1v16M9 7h2M9 11h2M9 15h2M14 21V9h4a1 1 0 011 1v11',
+        'tag'       => 'M20 12l-8 8-9-9V4h7zM7.5 7.5h.01',
+        'card'      => 'M2 8h20M2 6a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2z',
+        'chart'     => 'M3 3v18h18M7 14l3-3 3 3 4-5',
+    ];
 
     // Subscription expiry warning (tenant users with an active subscription nearing its end).
     $expiringSubscription = null;
@@ -88,7 +117,7 @@
     <x-head-meta :title="$title" :noindex="true" />
     <x-assets />
 </head>
-<body class="h-full bg-gray-50 text-gray-900 antialiased">
+<body class="h-full bg-gray-100 text-gray-900 antialiased">
 <div class="min-h-full lg:flex">
     {{-- Mobile drawer toggle (pure-CSS, works without bundled JS) --}}
     <input type="checkbox" id="nav-toggle" class="peer hidden">
@@ -97,24 +126,33 @@
     <label for="nav-toggle" class="fixed inset-0 z-30 hidden bg-gray-900/50 backdrop-blur-sm peer-checked:block lg:hidden"></label>
 
     {{-- Sidebar: off-canvas on mobile, static on desktop --}}
-    <aside class="fixed inset-y-0 start-0 z-40 hidden w-64 shrink-0 flex-col border-e border-gray-200 bg-white peer-checked:flex lg:static lg:flex">
-        <div class="flex h-16 items-center gap-2.5 border-b border-gray-100 px-5">
+    <aside class="fixed inset-y-0 start-0 z-40 hidden w-72 shrink-0 flex-col border-e border-gray-200 bg-white transition-transform peer-checked:flex lg:static lg:flex">
+        <div class="flex h-16 items-center gap-3 border-b border-gray-100 px-5">
             @if ($user->client?->logo_path)
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($user->client->logo_path) }}" alt="" class="size-8 rounded-lg object-cover ring-1 ring-gray-200">
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($user->client->logo_path) }}" alt="" class="size-9 rounded-xl object-cover ring-1 ring-gray-200">
             @else
-                <span class="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                <span class="flex size-9 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-white shadow-sm">
                     <x-app-logo class="size-5" />
                 </span>
             @endif
             <span class="truncate font-semibold tracking-tight">{{ $user->client?->name ?? __('ui.app_name') }}</span>
         </div>
-        <nav class="flex-1 space-y-0.5 overflow-y-auto px-3 py-5">
-            @foreach ($nav as $item)
-                <x-nav-item :route="$item['route']" :icon="$item['icon']" :active="$item['active'] ?? $item['route']">
-                    {{ $item['label'] }}
-                </x-nav-item>
+
+        <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+            @foreach ($nav as $section => $items)
+                <div>
+                    <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">{{ $section }}</p>
+                    <div class="space-y-1">
+                        @foreach ($items as $item)
+                            <x-nav-item :route="$item['route']" :icon="$item['icon']" :active="$item['active'] ?? $item['route']">
+                                {{ $item['label'] }}
+                            </x-nav-item>
+                        @endforeach
+                    </div>
+                </div>
             @endforeach
         </nav>
+
         <div class="border-t border-gray-100 px-5 py-3">
             <p class="text-xs text-gray-400">{{ __('ui.app_name') }}</p>
         </div>
@@ -124,7 +162,7 @@
         {{-- Top bar --}}
         <header class="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-gray-200 bg-white/90 px-4 backdrop-blur lg:px-8">
             <div class="flex min-w-0 items-center gap-3">
-                <label for="nav-toggle" class="inline-flex cursor-pointer rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 lg:hidden">
+                <label for="nav-toggle" class="inline-flex cursor-pointer rounded-lg p-2 text-gray-600 ring-1 ring-gray-200 transition hover:bg-gray-50 lg:hidden">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <path d="M3 6h18M3 12h18M3 18h18" />
                     </svg>
@@ -133,21 +171,21 @@
             </div>
 
             @unless ($user->isSuperAdmin())
-                <form method="GET" action="{{ route('tenant.search') }}" class="hidden md:block md:w-72">
+                <form method="GET" action="{{ route('tenant.search') }}" class="hidden md:block md:w-72 lg:w-80">
                     <div class="relative">
                         <svg class="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
                         </svg>
                         <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('ui.search_global_placeholder') }}"
-                               class="block w-full rounded-lg border-0 bg-gray-50 py-2 ps-9 pe-3 text-sm ring-1 ring-inset ring-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-600">
+                               class="block w-full rounded-xl border-0 bg-gray-100 py-2.5 ps-9 pe-3 text-sm ring-1 ring-inset ring-transparent transition focus:bg-white focus:ring-2 focus:ring-indigo-600">
                     </div>
                 </form>
             @endunless
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 @unless ($user->isSuperAdmin())
                     <details class="group relative">
-                        <summary class="flex cursor-pointer items-center rounded-lg p-2 text-gray-500 ring-1 ring-gray-200 hover:bg-gray-50 marker:content-['']">
+                        <summary class="flex cursor-pointer items-center rounded-lg p-2 text-gray-500 ring-1 ring-gray-200 transition hover:bg-gray-50 marker:content-['']">
                             <span class="relative">
                                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
@@ -177,7 +215,7 @@
                         <p class="text-sm font-medium">{{ $user->name }}</p>
                         <p class="text-xs text-gray-500">{{ $user->role->label() }}</p>
                     </div>
-                    <span class="flex size-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                    <span class="flex size-9 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white shadow-sm">
                         {{ \Illuminate\Support\Str::of($user->name)->trim()->substr(0, 1)->upper() }}
                     </span>
                 </div>
@@ -191,7 +229,7 @@
             </div>
         </header>
 
-        <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main class="flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:py-8 lg:pb-8">
             <div class="mx-auto w-full max-w-6xl">
                 @if ($expiringSubscription)
                     <div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-200">
@@ -212,6 +250,26 @@
             </div>
         </main>
     </div>
+
+    {{-- Mobile bottom navigation --}}
+    <nav class="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        @foreach ($bottomNav as $item)
+            @php $bActive = request()->routeIs($item['active'] ?? $item['route']); @endphp
+            <a href="{{ route($item['route']) }}" @if ($bActive) aria-current="page" @endif
+               class="flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition {{ $bActive ? 'text-indigo-600' : 'text-gray-500' }}">
+                <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="{{ $bottomIcons[$item['icon']] ?? $bottomIcons['dashboard'] }}" />
+                </svg>
+                <span class="max-w-full truncate px-1">{{ $item['label'] }}</span>
+            </a>
+        @endforeach
+        <label for="nav-toggle" class="flex flex-1 cursor-pointer flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-gray-500">
+            <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span>{{ __('ui.menu') }}</span>
+        </label>
+    </nav>
 </div>
 @stack('scripts')
 </body>

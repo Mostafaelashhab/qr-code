@@ -81,6 +81,15 @@ class Subscription extends Model
     }
 
     /**
+     * Whether this is a free trial subscription (granted at no charge,
+     * for a limited period, on the cheapest active plan).
+     */
+    public function isTrial(): bool
+    {
+        return (float) $this->price === 0.0 && $this->ends_at !== null;
+    }
+
+    /**
      * Days remaining until the subscription ends (null when open-ended).
      */
     public function daysRemaining(): ?int

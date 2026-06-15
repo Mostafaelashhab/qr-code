@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_plan')">
     <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_plan')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+            ['label' => __('ui.plans'), 'url' => route('admin.plans.index')],
+            ['label' => __('ui.new_plan')],
+        ]" />
+
         <form method="POST" action="{{ route('admin.plans.store') }}" class="space-y-6">
             @csrf
             @include('admin.plans._form')

@@ -7,7 +7,13 @@
 @endphp
 
 <x-layouts.app :title="__('ui.new_payment')">
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_payment')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.payments'), 'url' => route('tenant.payments.index')],
+            ['label' => __('ui.new_payment')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.payments.store') }}" class="space-y-6">
             @csrf
             <x-card>

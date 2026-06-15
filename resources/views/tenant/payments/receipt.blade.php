@@ -27,6 +27,6 @@
 
     <div class="flex items-center justify-between border-t border-gray-100 pt-6">
         <span class="text-sm font-medium text-gray-500">{{ __('ui.total') }}</span>
-        <span class="text-2xl font-bold tracking-tight tabular-nums">{{ number_format((float) $payment->amount, 2) }}</span>
+        <span class="text-2xl font-bold tracking-tight tabular-nums">{{ number_format((float) $payment->amount, 2) }} <span class="text-base font-semibold text-gray-400">{{ $payment->client->currency }}</span></span>
     </div>
 </x-layouts.print>

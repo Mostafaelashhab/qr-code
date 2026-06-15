@@ -5,6 +5,12 @@
 
 <x-layouts.app :title="__('ui.new_subscription')">
     <div class="mx-auto max-w-xl">
+        <x-page-header :title="__('ui.new_subscription')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+            ['label' => __('ui.subscriptions'), 'url' => route('admin.subscriptions.index')],
+            ['label' => __('ui.new_subscription')],
+        ]" />
+
         <form method="POST" action="{{ route('admin.subscriptions.store') }}" class="space-y-6">
             @csrf
 

@@ -29,7 +29,7 @@
                 </p>
                 <div class="mt-3 space-y-2">
                     @foreach ($question->options as $option)
-                        <label class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm ring-1 ring-gray-200 hover:bg-gray-50">
+                        <label class="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm ring-1 ring-gray-200 transition hover:bg-gray-50 has-checked:bg-indigo-50 has-checked:font-medium has-checked:text-indigo-800 has-checked:ring-indigo-300">
                             <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option->id }}" class="size-4 text-indigo-600 focus:ring-indigo-600">
                             <span>{{ $option->body }}</span>
                         </label>

@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_client')">
     <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_client')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+            ['label' => __('ui.clients'), 'url' => route('admin.clients.index')],
+            ['label' => __('ui.new_client')],
+        ]" />
+
         <form method="POST" action="{{ route('admin.clients.store') }}" class="space-y-6">
             @csrf
 

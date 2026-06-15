@@ -124,10 +124,23 @@ class Client extends Model
     }
 
     /**
+     * Whether the client is currently on a free trial.
+     */
+    public function isOnTrial(): bool
+    {
+        return (bool) $this->activeSubscription()?->isTrial();
+    }
+
+    /**
      * Whether the client's active plan grants the given optional feature.
      */
     public function hasFeature(Feature $feature): bool
     {
+        // WhatsApp linking is not offered during the free trial.
+        if ($feature === Feature::WhatsApp && $this->isOnTrial()) {
+            return false;
+        }
+
         return (bool) $this->currentPlan()?->includesFeature($feature);
     }
 }

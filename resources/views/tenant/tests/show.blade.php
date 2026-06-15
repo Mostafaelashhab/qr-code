@@ -1,21 +1,25 @@
 @php use App\Enums\QuestionType; $url = route('test.show', $test->token); @endphp
 
 <x-layouts.app :title="$test->title">
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold">{{ $test->title }}</h2>
-            <x-badge :color="$test->is_published ? 'emerald' : 'gray'">{{ $test->is_published ? __('ui.published') : __('ui.draft') }}</x-badge>
-        </div>
-        <div class="flex gap-2">
+    <x-page-header :title="$test->title"
+                   :subtitle="$test->group->name.' · '.$test->duration_minutes.' '.__('ui.duration_minutes').' · '.$test->questions->count().' '.__('ui.questions')"
+                   :breadcrumbs="[
+                       ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+                       ['label' => __('ui.online_tests'), 'url' => route('tenant.tests.index')],
+                       ['label' => $test->title],
+                   ]">
+        <x-slot:actions>
             <x-button variant="secondary" :href="route('tenant.tests.edit', $test)">{{ __('ui.edit') }}</x-button>
             <form method="POST" action="{{ route('tenant.tests.publish', $test) }}">
                 @csrf
                 <x-button type="submit">{{ $test->is_published ? __('ui.unpublish') : __('ui.publish') }}</x-button>
             </form>
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-page-header>
 
-    <p class="mb-6 text-sm text-gray-500">{{ $test->group->name }} · {{ $test->duration_minutes }} {{ __('ui.duration_minutes') }} · {{ $test->questions->count() }} {{ __('ui.questions') }}</p>
+    <div class="mb-6">
+        <x-badge :color="$test->is_published ? 'emerald' : 'gray'">{{ $test->is_published ? __('ui.published') : __('ui.draft') }}</x-badge>
+    </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2 space-y-6">

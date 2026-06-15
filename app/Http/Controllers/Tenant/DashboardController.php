@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Enums\AttendanceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\Charge;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
@@ -25,6 +26,8 @@ class DashboardController extends Controller
             'groups' => Group::count(),
             'teachers' => Teacher::count(),
             'month_revenue' => Payment::whereBetween('paid_at', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount'),
+            // Outstanding balance owed to the center: net charges (after discounts) minus payments received.
+            'pending_payments' => max(0, ((float) Charge::sum('amount') - (float) Charge::sum('discount')) - (float) Payment::sum('amount')),
         ];
 
         $subscription = $client->activeSubscription()?->loadMissing('plan');

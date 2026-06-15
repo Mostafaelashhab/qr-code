@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_group')">
     <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_group')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.groups'), 'url' => route('tenant.groups.index')],
+            ['label' => __('ui.new_group')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.groups.store') }}" class="space-y-6">
             @csrf
             @include('tenant.groups._form')

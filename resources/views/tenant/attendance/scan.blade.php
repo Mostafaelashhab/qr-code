@@ -1,14 +1,15 @@
 <x-layouts.app :title="__('ui.qr_attendance')">
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-            <h2 class="text-xl font-semibold">{{ $group->name }}</h2>
-            <p class="text-sm text-gray-500">{{ $group->subject->name }} · {{ now()->isoFormat('LL') }}</p>
-        </div>
-        <div class="flex gap-2">
+    <x-page-header :title="$group->name" :subtitle="$group->subject->name.' · '.now()->isoFormat('LL')" :breadcrumbs="[
+        ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+        ['label' => __('ui.groups'), 'url' => route('tenant.groups.index')],
+        ['label' => $group->name, 'url' => route('tenant.groups.show', $group)],
+        ['label' => __('ui.qr_checkin')],
+    ]">
+        <x-slot:actions>
             <x-button variant="secondary" :href="route('tenant.attendance.cards')">{{ __('ui.qr_cards') }}</x-button>
             <x-button variant="secondary" :href="route('tenant.groups.attendance.create', $group)">{{ __('ui.take_attendance') }}</x-button>
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <x-card :title="__('ui.qr_checkin')">

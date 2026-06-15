@@ -5,6 +5,11 @@
 @endphp
 
 <x-layouts.app :title="__('ui.billing')">
+    <x-page-header :title="__('ui.billing')" :breadcrumbs="[
+        ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+        ['label' => __('ui.billing')],
+    ]" />
+
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2 space-y-6">
             <x-card :title="__('ui.pay_for_plan')">

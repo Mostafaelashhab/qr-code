@@ -1,23 +1,22 @@
 <x-layouts.app :title="$client->name">
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold">{{ $client->name }}</h2>
-            <x-badge :color="$client->is_active ? 'emerald' : 'gray'">
-                {{ $client->is_active ? __('ui.active') : __('ui.inactive') }}
-            </x-badge>
-        </div>
-        <div class="flex gap-2">
+    <x-page-header :title="$client->name" :breadcrumbs="[
+        ['label' => __('ui.dashboard'), 'url' => route('admin.dashboard')],
+        ['label' => __('ui.clients'), 'url' => route('admin.clients.index')],
+        ['label' => $client->name],
+    ]">
+        <x-slot:actions>
             <x-button variant="secondary" :href="route('admin.clients.edit', $client)">{{ __('ui.edit') }}</x-button>
-            <x-button variant="secondary" :href="route('admin.subscriptions.create', ['client_id' => $client->id])">
-                {{ __('ui.start_subscription') }}
-            </x-button>
+            <x-button variant="secondary" :href="route('admin.subscriptions.create', ['client_id' => $client->id])">{{ __('ui.start_subscription') }}</x-button>
             <form method="POST" action="{{ route('admin.clients.destroy', $client) }}"
                   onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
-                @csrf
-                @method('DELETE')
+                @csrf @method('DELETE')
                 <x-button type="submit" variant="danger">{{ __('ui.delete') }}</x-button>
             </form>
-        </div>
+        </x-slot:actions>
+    </x-page-header>
+
+    <div class="mb-6 flex flex-wrap items-center gap-2">
+        <x-badge :color="$client->is_active ? 'emerald' : 'gray'">{{ $client->is_active ? __('ui.active') : __('ui.inactive') }}</x-badge>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

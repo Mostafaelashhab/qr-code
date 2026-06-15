@@ -1,11 +1,7 @@
 <x-layouts.guest :title="__('ui.reset_password')">
     <h2 class="mb-6 text-center text-lg font-semibold">{{ __('ui.reset_password') }}</h2>
 
-    @if ($errors->any())
-        <div class="mb-4 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
-            {{ $errors->first() }}
-        </div>
-    @endif
+    <x-alert />
 
     <form method="POST" action="{{ route('password.store') }}" class="space-y-5">
         @csrf

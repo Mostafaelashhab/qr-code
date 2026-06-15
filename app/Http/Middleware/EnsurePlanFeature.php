@@ -29,7 +29,11 @@ class EnsurePlanFeature
         }
 
         if (! $user->client?->hasFeature(Feature::from($feature))) {
-            abort(403, __('messages.feature_unavailable'));
+            $message = $user->client?->isOnTrial()
+                ? __('messages.feature_unavailable_on_trial')
+                : __('messages.feature_unavailable');
+
+            abort(403, $message);
         }
 
         return $next($request);

@@ -15,7 +15,7 @@
     <div class="flex min-h-full flex-col items-center justify-center px-4 py-12">
         <div class="w-full max-w-md">
             <div class="mb-8 flex flex-col items-center gap-3 text-center">
-                <span class="flex size-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-sm">
+                <span class="flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-600 to-violet-600 text-white shadow-sm">
                     <x-app-logo class="size-8" />
                 </span>
                 <h1 class="text-xl font-semibold tracking-tight">{{ __('ui.app_name') }}</h1>

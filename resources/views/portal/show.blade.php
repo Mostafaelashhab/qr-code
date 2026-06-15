@@ -16,7 +16,7 @@
             @if ($client->logo_path)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($client->logo_path) }}" alt="" class="size-10 rounded-lg object-cover ring-1 ring-gray-200">
             @else
-                <span class="flex size-10 items-center justify-center rounded-lg bg-indigo-600 text-white"><x-app-logo class="size-6" /></span>
+                <span class="flex size-10 items-center justify-center rounded-lg bg-linear-to-br from-indigo-600 to-violet-600 text-white"><x-app-logo class="size-6" /></span>
             @endif
             <div>
                 <p class="font-semibold tracking-tight">{{ $client->name }}</p>

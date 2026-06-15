@@ -1,5 +1,11 @@
 <x-layouts.app :title="__('ui.new_expense')">
-    <div class="mx-auto max-w-xl">
+    <div class="mx-auto max-w-2xl">
+        <x-page-header :title="__('ui.new_expense')" :breadcrumbs="[
+            ['label' => __('ui.dashboard'), 'url' => route('tenant.dashboard')],
+            ['label' => __('ui.expenses'), 'url' => route('tenant.expenses.index')],
+            ['label' => __('ui.new_expense')],
+        ]" />
+
         <form method="POST" action="{{ route('tenant.expenses.store') }}" class="space-y-6">
             @csrf
             @include('tenant.expenses._form')
