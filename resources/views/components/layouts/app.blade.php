@@ -5,6 +5,9 @@
     $dir = in_array($locale, config('app.rtl_locales', [])) ? 'rtl' : 'ltr';
     $user = auth()->user();
     $can = fn (\App\Enums\Feature $feature): bool => (bool) $user->client?->hasFeature($feature);
+    // A nav section is visible only when the staff member holds the permission
+    // (center admins hold all). Plan-feature sections also still require $can().
+    $may = fn (\App\Enums\Permission $permission): bool => $user->hasPermission($permission);
 
     $nav = $user->isSuperAdmin()
         ? [
@@ -17,30 +20,41 @@
         ]
         : array_values(array_filter([
             ['route' => 'tenant.dashboard', 'label' => __('ui.dashboard'), 'icon' => 'grid'],
-            ['route' => 'tenant.students.index', 'label' => __('ui.students'), 'icon' => 'users', 'active' => 'tenant.students.*'],
-            ['route' => 'tenant.groups.index', 'label' => __('ui.groups'), 'icon' => 'grid', 'active' => 'tenant.groups.*'],
-            $can(\App\Enums\Feature::Timetable)
+            $may(\App\Enums\Permission::Students)
+                ? ['route' => 'tenant.students.index', 'label' => __('ui.students'), 'icon' => 'users', 'active' => 'tenant.students.*']
+                : null,
+            $may(\App\Enums\Permission::Groups)
+                ? ['route' => 'tenant.groups.index', 'label' => __('ui.groups'), 'icon' => 'grid', 'active' => 'tenant.groups.*']
+                : null,
+            $can(\App\Enums\Feature::Timetable) && $may(\App\Enums\Permission::Timetable)
                 ? ['route' => 'tenant.timetable.index', 'label' => __('ui.timetable'), 'icon' => 'card', 'active' => 'tenant.timetable.*']
                 : null,
-            ['route' => 'tenant.subjects.index', 'label' => __('ui.subjects'), 'icon' => 'tag', 'active' => 'tenant.subjects.*'],
-            ['route' => 'tenant.teachers.index', 'label' => __('ui.teachers'), 'icon' => 'building', 'active' => 'tenant.teachers.*'],
-            $can(\App\Enums\Feature::Payments)
+            $may(\App\Enums\Permission::Subjects)
+                ? ['route' => 'tenant.subjects.index', 'label' => __('ui.subjects'), 'icon' => 'tag', 'active' => 'tenant.subjects.*']
+                : null,
+            $may(\App\Enums\Permission::Teachers)
+                ? ['route' => 'tenant.teachers.index', 'label' => __('ui.teachers'), 'icon' => 'building', 'active' => 'tenant.teachers.*']
+                : null,
+            $can(\App\Enums\Feature::Payments) && $may(\App\Enums\Permission::Payments)
                 ? ['route' => 'tenant.payments.index', 'label' => __('ui.payments'), 'icon' => 'card', 'active' => 'tenant.payments.*']
                 : null,
-            $can(\App\Enums\Feature::Expenses)
+            $can(\App\Enums\Feature::Expenses) && $may(\App\Enums\Permission::Expenses)
                 ? ['route' => 'tenant.expenses.index', 'label' => __('ui.expenses'), 'icon' => 'tag', 'active' => 'tenant.expenses.*']
                 : null,
-            $can(\App\Enums\Feature::OnlineTests)
+            $can(\App\Enums\Feature::OnlineTests) && $may(\App\Enums\Permission::OnlineTests)
                 ? ['route' => 'tenant.tests.index', 'label' => __('ui.online_tests'), 'icon' => 'tag', 'active' => 'tenant.tests.*']
                 : null,
-            $can(\App\Enums\Feature::Reports)
+            $can(\App\Enums\Feature::Reports) && $may(\App\Enums\Permission::Reports)
                 ? ['route' => 'tenant.reports.index', 'label' => __('ui.reports'), 'icon' => 'grid', 'active' => 'tenant.reports.*']
                 : null,
-            $can(\App\Enums\Feature::Messages)
+            $can(\App\Enums\Feature::Messages) && $may(\App\Enums\Permission::Messages)
                 ? ['route' => 'tenant.messages.index', 'label' => __('ui.messages'), 'icon' => 'card', 'active' => 'tenant.messages.*']
                 : null,
             $user->isClientAdmin()
                 ? ['route' => 'tenant.users.index', 'label' => __('ui.users'), 'icon' => 'users', 'active' => 'tenant.users.*']
+                : null,
+            $user->isClientAdmin()
+                ? ['route' => 'tenant.roles.index', 'label' => __('ui.roles'), 'icon' => 'tag', 'active' => 'tenant.roles.*']
                 : null,
             $user->isClientAdmin() && $can(\App\Enums\Feature::Activity)
                 ? ['route' => 'tenant.activity.index', 'label' => __('ui.activity_log'), 'icon' => 'grid', 'active' => 'tenant.activity.*']

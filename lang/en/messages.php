@@ -20,6 +20,12 @@ return [
     'user_updated' => 'User updated successfully.',
     'user_deleted' => 'User deleted successfully.',
 
+    'role_saved' => 'Role saved successfully.',
+    'role_deleted' => 'Role deleted successfully.',
+    'role_has_users' => 'Cannot delete a role that still has staff assigned to it.',
+    'last_admin_protected' => 'A center must keep at least one administrator.',
+    'permission_denied' => 'You do not have permission to access this section.',
+
     'confirm_delete' => 'Are you sure you want to delete this item?',
 
     'subject_saved' => 'Subject saved successfully.',

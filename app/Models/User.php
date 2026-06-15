@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Permission;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['client_id', 'name', 'email', 'role', 'phone', 'password', 'is_active'])]
+#[Fillable(['client_id', 'name', 'email', 'role', 'role_id', 'phone', 'password', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -47,6 +48,17 @@ class User extends Authenticatable
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * The custom staff role assigned to this user, if any. Center admins and
+     * super admins have no custom role — they implicitly hold every permission.
+     *
+     * @return BelongsTo<Role, $this>
+     */
+    public function staffRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
@@ -73,6 +85,21 @@ class User extends Authenticatable
     public function hasRole(UserRole $role): bool
     {
         return $this->role === $role;
+    }
+
+    /**
+     * Whether this user may access the given module.
+     *
+     * Super admins and center admins hold every permission. Other staff hold
+     * only the permissions granted by their assigned custom role.
+     */
+    public function hasPermission(Permission $permission): bool
+    {
+        if ($this->isSuperAdmin() || $this->isClientAdmin()) {
+            return true;
+        }
+
+        return (bool) $this->staffRole?->hasPermission($permission);
     }
 
     /**

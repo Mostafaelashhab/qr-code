@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Tenant;
 
-use App\Enums\UserRole;
+use App\Http\Requests\Concerns\ResolvesStaffRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
+    use ResolvesStaffRole;
+
     public function authorize(): bool
     {
         return (bool) $this->user()?->isClientAdmin();
@@ -23,7 +25,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'phone' => ['nullable', 'string', 'max:50'],
-            'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::assignableByClientAdmin())],
+            'role_ref' => ['required', $this->staffRoleRule()],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_active' => ['boolean'],
         ];
@@ -32,5 +34,18 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge(['is_active' => $this->boolean('is_active', true)]);
+    }
+
+    /**
+     * Validated attributes ready for creating the user, with role_ref resolved.
+     *
+     * @return array<string, mixed>
+     */
+    public function userAttributes(): array
+    {
+        return [
+            ...$this->safe()->only(['name', 'email', 'phone', 'password', 'is_active']),
+            ...$this->resolvedRole(),
+        ];
     }
 }

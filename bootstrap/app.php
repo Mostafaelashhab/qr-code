@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsurePlanFeature;
 use App\Http\Middleware\EnsureTenantIsActive;
+use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'tenant.active' => EnsureTenantIsActive::class,
             'feature' => EnsurePlanFeature::class,
+            'permission' => EnsureUserHasPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

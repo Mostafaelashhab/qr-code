@@ -21,7 +21,11 @@
                                 <div class="font-medium text-gray-900">{{ $user->name }}</div>
                                 <div class="text-xs text-gray-500">{{ $user->email }}</div>
                             </td>
-                            <td class="px-6 py-4"><x-badge color="indigo">{{ $user->role->label() }}</x-badge></td>
+                            <td class="px-6 py-4">
+                                <x-badge :color="$user->isClientAdmin() ? 'indigo' : 'gray'">
+                                    {{ $user->isClientAdmin() ? $user->role->label() : ($user->staffRole?->name ?? $user->role->label()) }}
+                                </x-badge>
+                            </td>
                             <td class="px-6 py-4">
                                 <x-badge :color="$user->is_active ? 'emerald' : 'gray'">
                                     {{ $user->is_active ? __('ui.active') : __('ui.inactive') }}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreUserRequest;
 use App\Http\Requests\Tenant\UpdateUserRequest;
@@ -18,6 +19,7 @@ class UserController extends Controller
         Gate::authorize('viewAny', User::class);
 
         $users = User::forClient($request->user()->client_id)
+            ->with('staffRole')
             ->latest()
             ->paginate(15);
 
@@ -37,7 +39,7 @@ class UserController extends Controller
             return back()->withInput()->withErrors(['name' => __('messages.plan_user_limit')]);
         }
 
-        $request->user()->client->users()->create($request->validated());
+        $request->user()->client->users()->create($request->userAttributes());
 
         return redirect()
             ->route('tenant.users.index')
@@ -57,7 +59,13 @@ class UserController extends Controller
         $this->ensureSameTenant($request, $user);
         Gate::authorize('update', $user);
 
-        $user->update($request->userAttributes());
+        $attributes = $request->userAttributes();
+
+        if ($this->wouldRemoveLastAdmin($user, $attributes['role'])) {
+            return back()->withInput()->withErrors(['role_ref' => __('messages.last_admin_protected')]);
+        }
+
+        $user->update($attributes);
 
         return redirect()
             ->route('tenant.users.index')
@@ -68,6 +76,10 @@ class UserController extends Controller
     {
         $this->ensureSameTenant($request, $user);
         Gate::authorize('delete', $user);
+
+        if ($this->wouldRemoveLastAdmin($user, null)) {
+            return back()->withErrors(['delete' => __('messages.last_admin_protected')]);
+        }
 
         $user->delete();
 
@@ -82,5 +94,27 @@ class UserController extends Controller
     private function ensureSameTenant(Request $request, User $user): void
     {
         abort_unless($user->client_id === $request->user()->client_id, 404);
+    }
+
+    /**
+     * Whether changing $user to $newRole (null = deletion) would leave the
+     * center with no admins at all — which must never happen.
+     */
+    private function wouldRemoveLastAdmin(User $user, ?UserRole $newRole): bool
+    {
+        if (! $user->isClientAdmin()) {
+            return false;
+        }
+
+        if ($newRole === UserRole::ClientAdmin) {
+            return false;
+        }
+
+        $otherAdmins = User::forClient($user->client_id)
+            ->where('role', UserRole::ClientAdmin->value)
+            ->whereKeyNot($user->id)
+            ->exists();
+
+        return ! $otherAdmins;
     }
 }

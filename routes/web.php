@@ -6,10 +6,12 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuardianPortalController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Tenant;
+use App\Http\Controllers\TestAttemptController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingController::class)->name('home');
@@ -21,14 +23,14 @@ Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::view('brand', 'brand')->name('brand');
 
 // Public, token-based parent portal (read-only).
-Route::get('p/{token}', [\App\Http\Controllers\GuardianPortalController::class, 'show'])->name('portal.show');
+Route::get('p/{token}', [GuardianPortalController::class, 'show'])->name('portal.show');
 
 // Public, token-based online test taking.
-Route::get('t/{token}', [\App\Http\Controllers\TestAttemptController::class, 'show'])->name('test.show');
-Route::post('t/{token}/start', [\App\Http\Controllers\TestAttemptController::class, 'start'])->name('test.start');
-Route::get('t/{token}/a/{attempt}', [\App\Http\Controllers\TestAttemptController::class, 'take'])->name('test.take');
-Route::post('t/{token}/a/{attempt}', [\App\Http\Controllers\TestAttemptController::class, 'submit'])->name('test.submit');
-Route::get('t/{token}/a/{attempt}/result', [\App\Http\Controllers\TestAttemptController::class, 'result'])->name('test.result');
+Route::get('t/{token}', [TestAttemptController::class, 'show'])->name('test.show');
+Route::post('t/{token}/start', [TestAttemptController::class, 'start'])->name('test.start');
+Route::get('t/{token}/a/{attempt}', [TestAttemptController::class, 'take'])->name('test.take');
+Route::post('t/{token}/a/{attempt}', [TestAttemptController::class, 'submit'])->name('test.submit');
+Route::get('t/{token}/a/{attempt}/result', [TestAttemptController::class, 'result'])->name('test.result');
 
 Route::put('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 
@@ -104,20 +106,26 @@ Route::middleware('auth')->group(function (): void {
                 Route::get('subscription', [Tenant\SubscriptionController::class, 'index'])->name('subscription.index');
 
                 // Core tutoring management — available on every plan.
-                Route::resource('subjects', Tenant\SubjectController::class)->except('show');
-                Route::resource('teachers', Tenant\TeacherController::class)->except('show');
-                Route::get('students/import', [Tenant\StudentController::class, 'importForm'])->name('students.import');
-                Route::post('students/import', [Tenant\StudentController::class, 'import'])->name('students.import.store');
-                Route::get('students/import/template', [Tenant\StudentController::class, 'importTemplate'])->name('students.import.template');
-                Route::resource('students', Tenant\StudentController::class);
-                Route::post('students/{student}/portal/regenerate', [Tenant\StudentController::class, 'regeneratePortal'])->name('students.portal.regenerate');
-                Route::resource('groups', Tenant\GroupController::class);
-                Route::post('groups/{group}/students', [Tenant\EnrollmentController::class, 'store'])->name('groups.students.store');
-                Route::delete('groups/{group}/students/{enrollment}', [Tenant\EnrollmentController::class, 'destroy'])->name('groups.students.destroy');
-                Route::get('exports/students', [Tenant\ExportController::class, 'students'])->name('exports.students');
+                Route::resource('subjects', Tenant\SubjectController::class)->except('show')->middleware('permission:subjects');
+                Route::resource('teachers', Tenant\TeacherController::class)->except('show')->middleware('permission:teachers');
+
+                Route::middleware('permission:students')->group(function (): void {
+                    Route::get('students/import', [Tenant\StudentController::class, 'importForm'])->name('students.import');
+                    Route::post('students/import', [Tenant\StudentController::class, 'import'])->name('students.import.store');
+                    Route::get('students/import/template', [Tenant\StudentController::class, 'importTemplate'])->name('students.import.template');
+                    Route::resource('students', Tenant\StudentController::class);
+                    Route::post('students/{student}/portal/regenerate', [Tenant\StudentController::class, 'regeneratePortal'])->name('students.portal.regenerate');
+                    Route::get('exports/students', [Tenant\ExportController::class, 'students'])->name('exports.students');
+                });
+
+                Route::middleware('permission:groups')->group(function (): void {
+                    Route::resource('groups', Tenant\GroupController::class);
+                    Route::post('groups/{group}/students', [Tenant\EnrollmentController::class, 'store'])->name('groups.students.store');
+                    Route::delete('groups/{group}/students/{enrollment}', [Tenant\EnrollmentController::class, 'destroy'])->name('groups.students.destroy');
+                });
 
                 // Attendance.
-                Route::middleware('feature:attendance')->group(function (): void {
+                Route::middleware(['feature:attendance', 'permission:attendance'])->group(function (): void {
                     Route::get('groups/{group}/attendance', [Tenant\AttendanceController::class, 'create'])->name('groups.attendance.create');
                     Route::post('groups/{group}/attendance', [Tenant\AttendanceController::class, 'store'])->name('groups.attendance.store');
                     Route::get('groups/{group}/attendance/scan', [Tenant\AttendanceController::class, 'scan'])->name('groups.attendance.scan');
@@ -128,7 +136,7 @@ Route::middleware('auth')->group(function (): void {
                 });
 
                 // Exams & grades.
-                Route::middleware('feature:exams')->group(function (): void {
+                Route::middleware(['feature:exams', 'permission:exams'])->group(function (): void {
                     Route::post('groups/{group}/exams', [Tenant\ExamController::class, 'store'])->name('exams.store');
                     Route::get('exams/{exam}', [Tenant\ExamController::class, 'show'])->name('exams.show');
                     Route::delete('exams/{exam}', [Tenant\ExamController::class, 'destroy'])->name('exams.destroy');
@@ -136,14 +144,14 @@ Route::middleware('auth')->group(function (): void {
                 });
 
                 // Timetable.
-                Route::middleware('feature:timetable')->group(function (): void {
+                Route::middleware(['feature:timetable', 'permission:timetable'])->group(function (): void {
                     Route::get('timetable', [Tenant\TimetableController::class, 'index'])->name('timetable.index');
                     Route::post('groups/{group}/timetable', [Tenant\TimetableController::class, 'store'])->name('timetable.store');
                     Route::delete('timetable/{slot}', [Tenant\TimetableController::class, 'destroy'])->name('timetable.destroy');
                 });
 
                 // Payments.
-                Route::middleware('feature:payments')->group(function (): void {
+                Route::middleware(['feature:payments', 'permission:payments'])->group(function (): void {
                     Route::resource('payments', Tenant\PaymentController::class)->only(['index', 'create', 'store', 'destroy']);
                     Route::get('payments/{payment}/receipt', [Tenant\PaymentController::class, 'receipt'])->name('payments.receipt');
                     Route::get('exports/payments', [Tenant\ExportController::class, 'payments'])->name('exports.payments');
@@ -153,12 +161,12 @@ Route::middleware('auth')->group(function (): void {
                 });
 
                 // Expenses.
-                Route::middleware('feature:expenses')->group(function (): void {
+                Route::middleware(['feature:expenses', 'permission:expenses'])->group(function (): void {
                     Route::resource('expenses', Tenant\ExpenseController::class)->except('show');
                 });
 
                 // Online tests.
-                Route::middleware('feature:online_tests')->group(function (): void {
+                Route::middleware(['feature:online_tests', 'permission:online_tests'])->group(function (): void {
                     Route::resource('tests', Tenant\TestController::class);
                     Route::post('tests/{test}/publish', [Tenant\TestController::class, 'togglePublish'])->name('tests.publish');
                     Route::post('tests/{test}/questions', [Tenant\QuestionController::class, 'store'])->name('tests.questions.store');
@@ -166,7 +174,7 @@ Route::middleware('auth')->group(function (): void {
                 });
 
                 // Reports.
-                Route::middleware('feature:reports')->group(function (): void {
+                Route::middleware(['feature:reports', 'permission:reports'])->group(function (): void {
                     Route::get('reports', [Tenant\ReportController::class, 'index'])->name('reports.index');
                     Route::get('reports/financial', [Tenant\ReportController::class, 'financial'])->name('reports.financial');
                     Route::get('reports/attendance', [Tenant\ReportController::class, 'attendance'])->name('reports.attendance');
@@ -175,7 +183,7 @@ Route::middleware('auth')->group(function (): void {
                 });
 
                 // SMS reminders + outbox.
-                Route::middleware('feature:messages')->group(function (): void {
+                Route::middleware(['feature:messages', 'permission:messages'])->group(function (): void {
                     Route::post('attendance/{session}/remind', [Tenant\ReminderController::class, 'absence'])->name('reminders.absence');
                     Route::post('reminders/payment', [Tenant\ReminderController::class, 'payment'])->name('reminders.payment');
                     Route::get('messages', [Tenant\MessageController::class, 'index'])->name('messages.index');
@@ -183,6 +191,7 @@ Route::middleware('auth')->group(function (): void {
 
                 // User management is limited to center admins.
                 Route::middleware('role:client_admin')->group(function (): void {
+                    Route::resource('roles', Tenant\RoleController::class)->except('show');
                     Route::resource('users', Tenant\UserController::class)->except('show');
 
                     Route::get('settings', [Tenant\SettingsController::class, 'edit'])->name('settings.edit');

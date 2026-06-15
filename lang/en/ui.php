@@ -131,6 +131,18 @@ return [
     'edit_user' => 'Edit user',
     'leave_blank_password' => 'Leave blank to keep the current password.',
 
+    // Roles & permissions
+    'roles' => 'Roles',
+    'new_role' => 'New role',
+    'edit_role' => 'Edit role',
+    'role_name' => 'Role name',
+    'permissions' => 'Permissions',
+    'permissions_hint' => 'Choose which sections staff with this role can access. Center admins always have full access.',
+    'staff_count' => 'Staff',
+    'default_role' => 'Default role',
+    'no_permissions' => 'No permissions',
+    'no_roles' => 'No roles yet.',
+
     // Domain navigation
     'subjects' => 'Subjects',
     'teachers' => 'Teachers',
