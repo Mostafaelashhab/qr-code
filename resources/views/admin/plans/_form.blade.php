@@ -31,13 +31,16 @@
 
         <div class="sm:col-span-2 space-y-2">
             <label class="block text-sm font-medium text-gray-700">{{ __('ui.features') }}</label>
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 @foreach (Feature::cases() as $feature)
-                    <label class="flex items-center gap-2 rounded-lg px-3 py-2 ring-1 ring-gray-200">
+                    <label class="flex items-start gap-2.5 rounded-lg px-3 py-2.5 ring-1 ring-gray-200">
                         <input type="checkbox" name="features[]" value="{{ $feature->value }}"
                                @checked(in_array($feature->value, $selectedFeatures, true))
-                               class="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                        <span class="text-sm text-gray-700">{{ $feature->label() }}</span>
+                               class="mt-0.5 size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                        <span>
+                            <span class="block text-sm font-medium text-gray-800">{{ $feature->label() }}</span>
+                            <span class="mt-0.5 block text-xs leading-relaxed text-gray-500">{{ $feature->description() }}</span>
+                        </span>
                     </label>
                 @endforeach
             </div>

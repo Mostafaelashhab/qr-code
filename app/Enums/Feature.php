@@ -37,6 +37,15 @@ enum Feature: string
     }
 
     /**
+     * A one-line, translatable explanation of what the feature does — shown
+     * next to the label so a reader understands it without prior context.
+     */
+    public function description(): string
+    {
+        return __('features.'.$this->value);
+    }
+
+    /**
      * @return array<int, self>
      */
     public static function all(): array
