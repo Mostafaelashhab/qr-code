@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\UserRole;
 use App\Models\Client;
 use App\Models\Plan;
 use App\Models\Student;
@@ -48,7 +47,7 @@ it('blocks creating a user beyond the plan limit', function () {
     $this->actingAs($admin)->post(route('tenant.users.store'), [
         'name' => 'Extra User',
         'email' => 'extra@center.test',
-        'role' => UserRole::ClientUser->value,
+        'role_ref' => 'admin',
         'password' => 'password',
         'password_confirmation' => 'password',
     ])->assertSessionHasErrors('name');
